@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="subhero">
+  <div class="container py-5">
+    <h1 class="fw-bold">Operations Dashboard</h1>
+    <p class="text-secondary mb-0">Use this page in your live demo to show business readiness, not just screens.</p>
+  </div>
+</div>
+
+<div class="container section-gap-sm">
+  <div class="row g-4">
+    <div class="col-md-3">
+      <div class="metric-card">
+        <div class="metric-label">Total Revenue</div>
+        <div class="metric-value">₹{{ "%.0f"|format(analytics.total_revenue) }}</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="metric-card">
+        <div class="metric-label">Total Bookings</div>
+        <div class="metric-value">{{ analytics.total_bookings }}</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="metric-card">
+        <div class="metric-label">Occupied Cabins</div>
+        <div class="metric-value">{{ analytics.occupied_cabins }}</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="metric-card">
+        <div class="metric-label">Available Cabins</div>
+        <div class="metric-value">{{ analytics.available_cabins }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mt-1">
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body p-4">
+          <h4 class="fw-bold">Popular Cruises</h4>
+          {% for name, count in analytics.popular_cruises %}
+          <div class="d-flex justify-content-between py-2 border-bottom">
+            <span>{{ name }}</span>
+            <strong>{{ count }}</strong>
+          </div>
+          {% else %}
+          <div class="text-secondary">No bookings yet.</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body p-4">
+          <h4 class="fw-bold">Activity Reservation Mix</h4>
+          {% for category, count in analytics.activity_mix.items() %}
+          <div class="d-flex justify-content-between py-2 border-bottom">
+            <span>{{ category }}</span>
+            <strong>{{ count }}</strong>
+          </div>
+          {% else %}
+          <div class="text-secondary">No activity reservations yet.</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm mt-4">
+    <div class="card-body p-4">
+      <h4 class="fw-bold">Recent Bookings</h4>
+      <div class="table-responsive">
+        <table class="table align-middle mt-3">
+          <thead>
+            <tr>
+              <th>Reference</th>
+              <th>Guest</th>
+              <th>Cruise</th>
+              <th>Cabin</th>
+              <th>Total</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for booking in bookings %}
+            <tr>
+              <td>{{ booking.reference }}</td>
+              <td>{{ booking.customer_name }}</td>
+              <td>{{ booking.cruise.name }}</td>
+              <td>{{ booking.cabin.cabin_number }}</td>
+              <td>₹{{ "%.0f"|format(booking.total_amount) }}</td>
+              <td><span class="badge text-bg-success">{{ booking.status }}</span></td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="6" class="text-center text-secondary">No bookings yet.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

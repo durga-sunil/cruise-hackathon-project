@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="subhero">
+  <div class="container py-5">
+    <h1 class="fw-bold">API Documentation</h1>
+    <p class="text-secondary mb-0">Use these endpoints during judging to show that the project is API-enabled and integration ready.</p>
+  </div>
+</div>
+
+<div class="container section-gap-sm">
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body p-4">
+          <h4 class="fw-bold">Core APIs</h4>
+          <div class="code-box">
+            GET /api/health<br>
+            GET /api/cruises<br>
+            GET /api/cruise/&lt;id&gt;<br>
+            POST /api/recommend<br>
+            POST /api/concierge<br>
+            POST /api/book<br>
+            GET /api/bookings<br>
+            GET /api/analytics
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body p-4">
+          <h4 class="fw-bold">Why judges will like this</h4>
+          <ul class="text-secondary mb-0">
+            <li>Shows backend API maturity</li>
+            <li>Supports future mobile app integration</li>
+            <li>Demonstrates AI-style recommendation features</li>
+            <li>Backed by structured database entities</li>
+            <li>Supports live execution during demo</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

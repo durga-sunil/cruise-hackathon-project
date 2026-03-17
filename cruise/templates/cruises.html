@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="subhero">
+  <div class="container py-5">
+    <h1 class="fw-bold">Browse Cruises</h1>
+    <p class="text-secondary mb-0">Search by departure port and sailing date to find the right itinerary.</p>
+  </div>
+</div>
+
+<div class="container section-gap-sm">
+  <div class="card border-0 shadow-sm filter-card">
+    <div class="card-body">
+      <form method="get" action="/cruises" class="row g-3">
+        <div class="col-md-5">
+          <label class="form-label">Departure Port</label>
+          <input class="form-control" name="departure_port" value="{{ departure_port }}" placeholder="Kochi / Chennai / Mumbai">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Sailing Date</label>
+          <input class="form-control" type="date" name="sailing_date" value="{{ sailing_date }}">
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+          <button class="btn btn-primary w-100">Apply Filters</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="row g-4 mt-1">
+    {% for cruise in cruises %}
+    <div class="col-lg-4">
+      <div class="card cruise-card h-100 border-0 shadow-sm">
+        <img src="{{ cruise.image_url }}" class="card-img-top cruise-cover" alt="{{ cruise.name }}">
+        <div class="card-body p-4">
+          <h5 class="mb-1">{{ cruise.name }}</h5>
+          <div class="small text-secondary">{{ cruise.departure_port }} → {{ cruise.arrival_port }}</div>
+          <div class="small text-secondary">{{ cruise.sailing_date }} • {{ cruise.ship_name }}</div>
+          <p class="mt-3 text-secondary">{{ cruise.description }}</p>
+          <a href="/cruise/{{ cruise.id }}" class="btn btn-dark">Open Details</a>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+      <div class="empty-box">No cruises matched your filter selection.</div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

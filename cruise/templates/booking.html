@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container section-gap">
+  <div class="row g-5">
+    <div class="col-lg-7">
+      <div class="section-heading">
+        <span class="eyebrow dark">SMART BOOKING WORKFLOW</span>
+        <h1 class="fw-bold">{{ cruise.name }}</h1>
+        <p class="text-secondary">{{ cruise.departure_port }} → {{ cruise.arrival_port }} • {{ cruise.sailing_date }}</p>
+      </div>
+
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+          <h4 class="fw-bold">AI Recommendation Engine</h4>
+          <p class="text-secondary">Enter guest count and interests like family, luxury, romantic, food, casino, entertainment, budget, sea view.</p>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Guests</label>
+              <input id="aiGuests" class="form-control" type="number" min="1" max="4" value="2">
+            </div>
+            <div class="col-md-8">
+              <label class="form-label">Preferences</label>
+              <input id="aiPreferences" class="form-control" placeholder="family food entertainment">
+            </div>
+            <div class="col-12">
+              <button class="btn btn-dark" onclick="getRecommendations({{ cruise.id }})">Get Recommendation</button>
+            </div>
+          </div>
+          <div id="recommendationResult" class="mt-3"></div>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm mt-4">
+        <div class="card-body p-4">
+          <h4 class="fw-bold">AI Concierge</h4>
+          <p class="text-secondary">Ask simple questions for a demo-friendly AI assistant.</p>
+          <div class="row g-3">
+            <div class="col-12">
+              <input id="conciergeMessage" class="form-control" placeholder="Which option is best for a family?">
+            </div>
+            <div class="col-12">
+              <button class="btn btn-outline-dark" onclick="askConcierge()">Ask Concierge</button>
+            </div>
+          </div>
+          <div id="conciergeResult" class="mt-3"></div>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm mt-4">
+        <div class="card-body p-4">
+          <h4 class="fw-bold">Choose Activities</h4>
+          <p class="text-secondary">The system prevents overlapping activity schedules for the same day and time.</p>
+          <div class="row g-3">
+            {% for activity in activities %}
+            <div class="col-md-6">
+              <label class="activity-choice w-100">
+                <input
+                  type="checkbox"
+                  class="form-check-input me-2 activity-input"
+                  value="{{ activity.id }}"
+                  data-day="{{ activity.day_number }}"
+                  data-start="{{ activity.start_time }}"
+                  data-end="{{ activity.end_time }}"
+                  data-title="{{ activity.title }}"
+                >
+                <div>
+                  <div class="fw-semibold">{{ activity.title }}</div>
+                  <div class="small text-secondary">{{ activity.category }} • Day {{ activity.day_number }} • {{ activity.start_time }} - {{ activity.end_time }}</div>
+                  <div class="small text-secondary">{{ activity.venue }} • ₹{{ "%.0f"|format(activity.price) }}</div>
+                </div>
+              </label>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="card border-0 shadow-lg sticky-panel">
+        <div class="card-body p-4">
+          <h4 class="fw-bold">Confirm Booking</h4>
+          <form id="bookingForm" class="row g-3">
+            <input type="hidden" id="cruise_id" value="{{ cruise.id }}">
+            <div class="col-12">
+              <label class="form-label">Full Name</label>
+              <input id="customer_name" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Email</label>
+              <input id="email" type="email" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Phone</label>
+              <input id="phone" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Guests Count</label>
+              <input id="guests_count" type="number" min="1" max="4" value="2" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Select Cabin</label>
+              <select id="cabin_id" class="form-select" required>
+                <option value="">Choose a cabin</option>
+                {% for cabin in cabins %}
+                <option value="{{ cabin.id }}">{{ cabin.cabin_number }} • {{ cabin.cabin_type }} • ₹{{ "%.0f"|format(cabin.price) }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Preferences</label>
+              <input id="preferences" class="form-control" placeholder="luxury romantic food">
+            </div>
+            <div class="col-12">
+              <button class="btn btn-primary w-100 btn-lg" type="submit">Complete Booking</button>
+            </div>
+          </form>
+          <div id="bookingResult" class="mt-3"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+async function getRecommendations(cruiseId) {
+  const response = await fetch("/api/recommend", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      cruise_id: cruiseId,
+      guests_count: Number(document.getElementById("aiGuests").value || 2),
+      preferences: document.getElementById("aiPreferences").value
+    })
+  });
+  const data = await response.json();
+
+  let html = "";
+  if (data.recommended_cabin) {
+    html += `<div class="alert alert-info"><strong>Recommended Cabin:</strong> ${data.recommended_cabin.cabin_number} (${data.recommended_cabin.cabin_type}) - ₹${data.recommended_cabin.price}</div>`;
+  } else {
+    html += `<div class="alert alert-warning">No suitable cabin found.</div>`;
+  }
+
+  if (data.recommended_activities.length) {
+    html += `<div class="card border-0 bg-light"><div class="card-body"><strong>Suggested Activities</strong><ul class="mt-2 mb-0">`;
+    for (const item of data.recommended_activities) {
+      html += `<li>${item.title} • Day ${item.day_number} • ${item.time}</li>`;
+    }
+    html += `</ul></div></div>`;
+  }
+
+  document.getElementById("recommendationResult").innerHTML = html;
+}
+
+async function askConcierge() {
+  const response = await fetch("/api/concierge", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ message: document.getElementById("conciergeMessage").value })
+  });
+  const data = await response.json();
+  document.getElementById("conciergeResult").innerHTML =
+    `<div class="alert alert-secondary"><strong>${data.title}:</strong> ${data.answer}</div>`;
+}
+
+function toMinutes(value) {
+  const [hours, minutes] = value.split(":").map(Number);
+  return hours * 60 + minutes;
+}
+
+function clientConflict(items) {
+  for (let i = 0; i < items.length; i++) {
+    for (let j = i + 1; j < items.length; j++) {
+      const a = items[i];
+      const b = items[j];
+      if (a.day === b.day && toMinutes(a.start) < toMinutes(b.end) && toMinutes(b.start) < toMinutes(a.end)) {
+        return `Schedule conflict between "${a.title}" and "${b.title}".`;
+      }
+    }
+  }
+  return null;
+}
+
+document.getElementById("bookingForm").addEventListener("submit", async function(event) {
+  event.preventDefault();
+
+  const selected = [...document.querySelectorAll(".activity-input:checked")].map(item => ({
+    id: Number(item.value),
+    day: Number(item.dataset.day),
+    start: item.dataset.start,
+    end: item.dataset.end,
+    title: item.dataset.title
+  }));
+
+  const conflict = clientConflict(selected);
+  if (conflict) {
+    document.getElementById("bookingResult").innerHTML = `<div class="alert alert-danger">${conflict}</div>`;
+    return;
+  }
+
+  const payload = {
+    customer_name: document.getElementById("customer_name").value,
+    email: document.getElementById("email").value,
+    phone: document.getElementById("phone").value,
+    guests_count: Number(document.getElementById("guests_count").value),
+    cruise_id: Number(document.getElementById("cruise_id").value),
+    cabin_id: Number(document.getElementById("cabin_id").value),
+    preferences: document.getElementById("preferences").value,
+    activity_ids: selected.map(item => item.id)
+  };
+
+  const response = await fetch("/api/book", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(payload)
+  });
+
+  const data = await response.json();
+  const klass = data.success ? "alert-success" : "alert-danger";
+  let html = `<div class="alert ${klass}">${data.message}</div>`;
+  if (data.success) {
+    html += `<div class="card border-0 bg-light"><div class="card-body">
+              <div><strong>Booking Reference:</strong> ${data.reference}</div>
+              <div><strong>Total Amount:</strong> ₹${data.total_amount}</div>
+             </div></div>`;
+    document.getElementById("bookingForm").reset();
+    document.querySelectorAll(".activity-input").forEach(item => item.checked = false);
+  }
+
+  document.getElementById("bookingResult").innerHTML = html;
+});
+</script>
+{% endblock %}

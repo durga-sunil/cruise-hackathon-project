@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero-section">
+  <div class="container hero-padding">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-7">
+        <span class="eyebrow">AI-ENHANCED CRUISE BOOKING PLATFORM</span>
+        <h1 class="display-4 fw-bold mt-3">A premium cruise application that books cabins, restaurants, shows, and casino experiences in one smart flow.</h1>
+        <p class="lead mt-3 text-light-emphasis">
+          Built to impress judges with modern design, strong data modeling, API-first architecture,
+          conflict-free scheduling, smart recommendations, and an operations dashboard.
+        </p>
+        <div class="d-flex flex-wrap gap-3 mt-4">
+          <a href="/cruises" class="btn btn-primary btn-lg px-4">Explore Cruises</a>
+          <a href="/dashboard" class="btn btn-outline-light btn-lg px-4">View Dashboard</a>
+        </div>
+      </div>
+      <div class="col-lg-5">
+        <div class="card glass-card shadow-lg border-0">
+          <div class="card-body p-4">
+            <h4 class="fw-bold">Quick Search</h4>
+            <form method="get" action="/cruises" class="row g-3 mt-1">
+              <div class="col-12">
+                <label class="form-label">Departure Port</label>
+                <input class="form-control" name="departure_port" placeholder="Kochi / Chennai / Mumbai">
+              </div>
+              <div class="col-12">
+                <label class="form-label">Sailing Date</label>
+                <input class="form-control" type="date" name="sailing_date">
+              </div>
+              <div class="col-12">
+                <button class="btn btn-primary w-100">Search Cruises</button>
+              </div>
+            </form>
+            <hr>
+            <div class="row g-3 text-center">
+              <div class="col-6">
+                <div class="mini-metric">
+                  <div class="metric-number">{{ stats.cruises }}</div>
+                  <div class="metric-text">Cruises</div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="mini-metric">
+                  <div class="metric-number">{{ stats.cabins }}</div>
+                  <div class="metric-text">Cabins</div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="mini-metric">
+                  <div class="metric-number">{{ stats.activities }}</div>
+                  <div class="metric-text">Activities</div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="mini-metric">
+                  <div class="metric-number">{{ stats.bookings }}</div>
+                  <div class="metric-text">Bookings</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+   </div>
+  </div>
+</section>
+
+<section class="container section-gap">
+  <div class="section-heading">
+    <span class="eyebrow dark">FEATURED EXPERIENCES</span>
+    <h2 class="fw-bold">Content-rich cruise pages built for a strong live demo</h2>
+    <p class="text-secondary">Each cruise includes cabins, meal slots, shows, and casino activities backed by a real database.</p>
+  </div>
+  <div class="row g-4">
+    {% for cruise in cruises %}
+    <div class="col-lg-4">
+      <div class="card cruise-card h-100 border-0 shadow-sm">
+        <img src="{{ cruise.image_url }}" class="card-img-top cruise-cover" alt="{{ cruise.name }}">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-start gap-3">
+            <div>
+              <h5 class="mb-1">{{ cruise.name }}</h5>
+              <div class="small text-secondary">{{ cruise.departure_port }} → {{ cruise.arrival_port }}</div>
+              <div class="small text-secondary">{{ cruise.ship_name }}</div>
+            </div>
+            <span class="badge text-bg-dark rounded-pill">{{ cruise.duration_nights }}N</span>
+          </div>
+          <p class="mt-3 text-secondary">{{ cruise.description }}</p>
+          <div class="pill-list">
+            {% for point in cruise.highlights.split('|') %}
+            <span>{{ point }}</span>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="card-footer bg-white border-0 px-4 pb-4 pt-0 d-flex justify-content-between align-items-center">
+          <div>
+            <div class="small text-secondary">From</div>
+            <div class="fw-bold fs-5">₹{{ "%.0f"|format(cruise.base_price) }}</div>
+          </div>
+          <a href="/cruise/{{ cruise.id }}" class="btn btn-dark">View Cruise</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="container section-gap pt-0">
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="info-card">
+        <h5>Smart Schedule Logic</h5>
+        <p>The booking engine blocks overlapping events so guests cannot reserve two experiences in the same slot.</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="info-card">
+        <h5>AI Recommendation Layer</h5>
+        <p>Suggests cabins and activity plans based on guest count and travel preferences such as family, luxury, food, or casino.</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="info-card">
+        <h5>Live Analytics Dashboard</h5>
+        <p>Shows revenue, occupancy, popular cruises, and activity mix during the presentation.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container section-gap">
+  <div class="row g-5">
+    <div class="col-lg-7">
+      <img src="{{ cruise.image_url }}" class="img-fluid rounded-4 shadow-sm detail-image" alt="{{ cruise.name }}">
+      <div class="mt-4">
+        <span class="eyebrow dark">{{ cruise.code }}</span>
+        <h1 class="fw-bold mt-2">{{ cruise.name }}</h1>
+        <p class="text-secondary fs-5">{{ cruise.departure_port }} → {{ cruise.arrival_port }} • {{ cruise.sailing_date }} • {{ cruise.duration_nights }} nights</p>
+        <p class="text-secondary">{{ cruise.description }}</p>
+        <div class="pill-list">
+          {% for point in cruise.highlights.split('|') %}
+          <span>{{ point }}</span>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm mt-4">
+        <div class="card-body p-4">
+          <h4 class="fw-bold">Available Cabins</h4>
+          <div class="row g-3 mt-1">
+            {% for cabin in cabins %}
+            <div class="col-md-6">
+              <div class="soft-box">
+                <div class="d-flex justify-content-between align-items-start gap-3">
+                  <div>
+                    <h6 class="mb-1">{{ cabin.cabin_type }}</h6>
+                    <div class="small text-secondary">{{ cabin.cabin_number }} • {{ cabin.deck }} • Up to {{ cabin.capacity }} guests</div>
+                    <div class="small text-secondary">{{ cabin.features }}</div>
+                  </div>
+                  <span class="badge text-bg-light">₹{{ "%.0f"|format(cabin.price) }}</span>
+                </div>
+              </div>
+            </div>
+            {% else %}
+            <div class="col-12"><div class="empty-box">No cabins available right now.</div></div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm mt-4">
+        <div class="card-body p-4">
+          <h4 class="fw-bold">Restaurants, Shows, and Casino</h4>
+          {% for day, activities in grouped_activities.items() %}
+          <div class="mt-4">
+            <div class="fw-semibold mb-3">Day {{ day }}</div>
+            <div class="row g-3">
+              {% for item in activities %}
+              <div class="col-md-6">
+                <div class="activity-box">
+                  <div class="d-flex justify-content-between gap-3">
+                    <div>
+                      <h6 class="mb-1">{{ item.title }}</h6>
+                      <div class="small text-secondary">{{ item.category }} • {{ item.venue }}</div>
+                    </div>
+                    <span class="badge text-bg-dark">{{ item.slot_label }}</span>
+                  </div>
+                  <p class="small text-secondary mt-2 mb-2">{{ item.description }}</p>
+                  <div class="small fw-semibold">{{ item.start_time }} - {{ item.end_time }} • ₹{{ "%.0f"|format(item.price) }}</div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="card border-0 shadow-lg sticky-panel">
+        <div class="card-body p-4">
+          <h4 class="fw-bold">Quick Action Panel</h4>
+          <p class="text-secondary">Launch booking with recommendations, event validation, and booking confirmation.</p>
+          <div class="d-grid gap-2">
+            <a href="/booking/{{ cruise.id }}" class="btn btn-primary btn-lg">Book This Cruise</a>
+            <a href="/api/cruise/{{ cruise.id }}" class="btn btn-outline-dark" target="_blank">Open Cruise API</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
